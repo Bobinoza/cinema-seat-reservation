@@ -56,3 +56,92 @@ function montarPalco() {
   }
 }
 montarPalco();
+
+
+
+
+
+// ************* Reserva de poltrona  ****************
+function reservarPoltrona() {       
+  var poltrona = Number(inPoltrona.value);         // obtém conteúdo de inPoltrona
+
+  // valida o preenchimento do campo de entrada... não pode ser maior que a const
+  if (poltrona <= 0 || isNaN(poltrona) || poltrona > POLTRONAS) {
+    alert("Informe um número de poltrona válido");
+    inPoltrona.focus();
+    return;
+  }
+
+  var ocupadas = [];    // declara vetor para receber as poltronas ocupadas
+
+  // se há poltronas salvas em localStorage
+  if (localStorage.getItem("teatroOcupadas")) {
+    // preenche o vetor com as poltronas ocupadas do teatro (salvas em localStorage)
+    ocupadas = localStorage.getItem("teatroOcupadas").split(";");
+  }
+
+  // se poltrona escolhida já está ocupada (existe em localStorage)
+  if (ocupadas.indexOf(poltrona.toString()) >= 0) {
+    alert("Poltrona " + poltrona + " Já está ocupada...");
+    inPoltrona.value = "";
+    inPoltrona.focus();
+    return;
+  }
+
+  // captura divPalco para obter a imagem
+  var divPalco = document.getElementById("divPalco");
+
+  // captura imagem da poltrona, filha de divPalco. É -1 pois começa em 0
+  var imgPoltrona = divPalco.getElementsByTagName("img")[poltrona - 1];
+
+  imgPoltrona.src = "./img/reservada.jpg";    // modifica atributo da imagem
+
+  reservadas.push(poltrona);                // adiciona poltrona ao vetor reservadas
+
+  inPoltrona.value = "";                    // limpa campo
+  inPoltrona.focus();                       // jogo o foco em inPoltrona
+}
+var btReservar = document.getElementById("btReservar");
+btReservar.addEventListener("click", reservarPoltrona);
+
+// cria referência ao campo de entrada inPoltrona
+var inPoltrona = document.getElementById("inPoltrona");
+inPoltrona.addEventListener("keypress", function (tecla) {
+  if (tecla.key == "Enter") {
+    reservarPoltrona();
+  }
+});
+
+
+
+// ************ CONFIRMAR RESERVA **********
+function confirmarReserva() {
+  if (reservadas.length == 0) {
+    alert("Não há poltronas reservadas");
+    inPoltrona.focus();                     // elemento já foi referenciado de forma global
+    return;
+  }
+  // captura divPalco para obter as imagens
+  var divPalco = document.getElementById("divPalco");
+
+  var ocupadas = "";
+
+  if (localStorage.getItem("teatroOcupadas")) {
+    ocupadas = localStorage.getItem("teatroOcupadas") + ";";
+  }
+
+  for (var i = 0; i < reservadas.length; i++) {
+    ocupadas += reservadas[i] + ";";
+
+    // captura imagem da poltrona, filha de divPalco. É -1 pois comeca com 0
+    var imgPoltrona = divPalco.getElementsByTagName("img")[reservadas[i] - 1];
+
+    imgPoltrona.src = "img/ocupada.jpg"   // modifica atributo da imagem
+  }
+
+  // .length-1 é para retirar o último ";"
+  localStorage.setItem("teatroOcupadas", ocupadas.substring(0, ocupadas.length - 1));
+}
+
+var btConfirmar = document.getElementById("btConfirmar");
+btConfirmar.addEventListener("click", confirmarReserva)
